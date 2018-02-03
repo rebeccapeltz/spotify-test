@@ -12,9 +12,9 @@
         <p>I'm feeling like...<input type="text" v-model.lazy="query" placeholder="something"><button type="submit">Go</button></p>
       </form>
       <ul v-if="results && results.length > 0">
-       <li v-for="result in results">
-         <p>{{playlists.items.name}}</p>
-         <p>{{playlists.items.tracks}}</p>
+       <li v-for="(result,index) in results" :key="index">
+         <p>{{result.name}}</p>
+         <p>{{result.tracks.href}}</p>
        </li>
       </ul>
     </div> 
@@ -46,17 +46,16 @@ export default {
       debugger;
       let config = {
         headers: {
-          Authorization: "Bearer " + this.access_token
+          'Authorization': 'Bearer '.concat(this.access_token)
         }
       };
-      let bodyParameters = {
-        q: this.query,
-        type: "playlist"
-      };
+      let URL = `https://api.spotify.com/v1/search?type=playlist&q=${this.query}`;
+      let self = this;
       axios
-        .get("https://api.spotify.com/v1/search", bodyParameters,config)
+        .get(URL ,config)
         .then(response => {
-          this.results = response.data;
+          self.results = response.data.playlists.items;
+          console.log(self.results);
         })
         .catch(error => {
           this.errors.push(error);
