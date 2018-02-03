@@ -5,7 +5,7 @@ Set up spotify app:
 https://developer.spotify.com/my-applications/
 
 need to add any redirects to the spotify app
-
+``` JavaScript
 if (location.host == "localhost:8080") {
     client_id = "xxxxxxxxxxxxxxxxxx";
     redirect_uri = "http://localhost:8080/authorize";
@@ -14,3 +14,4 @@ if (location.host == "localhost:8080") {
     client_id = "xxxxxxxxxxxxxxxxxxx";
     redirect_uri = "http://beckypeltz.online/spotify-weather-app/#/authorize";
   }
+  ```
