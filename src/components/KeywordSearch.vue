@@ -63,10 +63,10 @@ function authorize(stateKey) {
     client_id = "d691b67437944ac1bb56a568badcc0e1";
     redirect_uri = "http://localhost:8080/authorize";
   } 
-  // else {
-  //   client_id = "d691b67437944ac1bb56a568badcc0e1";
-  //   redirect_uri = "http://beckypeltz.online/spotify-weather-app/#/authorize";
-  // }
+  else {
+    client_id = "d691b67437944ac1bb56a568badcc0e1";
+    redirect_uri = "http://beckypeltz.online/spotify-weather-app/#/authorize";
+  }
   //var redirect_uri = "http://reevedesigns.com/spotify-weather-app/#/authorize"; // Your redirect uri
   var state = generateRandomString(16);
   localStorage.setItem(stateKey, state);
