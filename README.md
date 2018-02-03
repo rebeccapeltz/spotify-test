@@ -12,6 +12,9 @@ if (location.host == "localhost:8080") {
   } 
   else {
     client_id = "xxxxxxxxxxxxxxxxxxx";
-    redirect_uri = "http://beckypeltz.online/spotify-weather-app/#/authorize";
+    redirect_uri = "https://spotify-test-84f79.firebaseapp.com/authorize";
   }
   ```
+Firebase hosting
+
+  https://firebase.google.com/docs/hosting/quickstart

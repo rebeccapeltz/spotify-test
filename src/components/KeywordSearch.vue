@@ -65,7 +65,7 @@ function authorize(stateKey) {
   } 
   else {
     client_id = "d691b67437944ac1bb56a568badcc0e1";
-    redirect_uri = "http://beckypeltz.online/spotify-weather-app/#/authorize";
+    redirect_uri = "https://spotify-test-84f79.firebaseapp.com/authorize";
   }
   //var redirect_uri = "http://reevedesigns.com/spotify-weather-app/#/authorize"; // Your redirect uri
   var state = generateRandomString(16);
