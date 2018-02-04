@@ -15,16 +15,17 @@ export default {
   data() {
     debugger;
 
-    let hash2Obj = location.hash.split("&")
-    .map(el => el.split("="))
-    .reduce((pre, cur) => {
+    let hash2Obj = location.hash
+      .split("&")
+      .map(el => el.split("="))
+      .reduce((pre, cur) => {
         pre[cur[0]] = cur[1];
         return pre;
       }, {});
     let accessCode = hash2Obj["#access_token"];
     //let searchUri = "search/" + accessCode;
-    let authorizedHome = "/#" + accessCode;
-    this.$router.push(authorizedHome);
+    // let authorizedHome = "/#" + accessCode;
+    this.$router.push({ path: `/#${accessCode}`});
     return {
       display_name: "test authorize"
     };

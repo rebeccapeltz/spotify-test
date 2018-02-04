@@ -1,25 +1,34 @@
 <template>
-  <div>
-    <div id="login" v-show="mustLogin && !loggedIn">
-      <p>You must log in to Spotify to use this app.</p>
-      <p><button id="login-button" @click="login">Log In</button></p>
+  <div class="keyword-search">
+    <div id="login" v-show="mustLogin && !loggedIn" >
+      <div v-show="!loggedIn">
+        <p>You must log in to Spotify to use this app.</p>
+        <p><button id="login-button" @click="login">Log In</button></p>
+      </div>
       <div id="user-profile-template"></div>
       <div id="user-profile"></div>
       <div id="oauth-template"></div>
       <div id="oauth"></div>
     </div>
     <div id="loggedIn" v-show="loggedIn">
+      <h3>Welcome {{me && me.display_name}}</h3>
       <p>Music for your Mood</p>
-      <p>This is a playlist based on {{query}}</p>
+      <p v-show="query">This is a playlist based on <strong>{{query}}</strong></p>
       <form v-on:submit.prevent="getPlaylist">
         <p>I'm feeling like...<input type="text" v-model.lazy="query" placeholder="something"><button type="submit">Go</button></p>
       </form>
-      <ul v-if="results && results.length > 0">
+      <table class="music">
+        <tr v-for="(result,index) in results" :key="index">         
+          <td>{{result.name}}</td><td><button id="music-fetch-button" @click="fetchMusic">Fetch</button></td>
+        </tr>
+      </table>
+
+      <!-- <ul class="music" v-if="results && results.length > 0">
        <li v-for="(result,index) in results" :key="index">
-         <p>{{result.name}}</p>
-         <p>{{result.tracks.href}}</p>
+            <span class="music-name">{{result.name}}</span>
+            <input class="music-button" type="button" v-bind:value="result.name">
        </li>
-      </ul>
+      </ul> -->
     </div>      
   </div>
 </template>
@@ -55,8 +64,6 @@ function generateRandomString(length) {
   return text;
 }
 function authorize(stateKey) {
-  //var client_id = "2acb1bf4bb054c3a9d24c0256833c1a7"; // Your client id
-  debugger;
   var client_id = "";
   var redirect_uri = "";
   if (location.host == "localhost:8080") {
@@ -66,7 +73,6 @@ function authorize(stateKey) {
     client_id = "d691b67437944ac1bb56a568badcc0e1";
     redirect_uri = "https://spotify-test-84f79.firebaseapp.com/authorize";
   }
-  //var redirect_uri = "http://reevedesigns.com/spotify-weather-app/#/authorize"; // Your redirect uri
   var state = generateRandomString(16);
   localStorage.setItem(stateKey, state);
   var scope = "user-read-private user-read-email";
@@ -86,6 +92,7 @@ export default {
     let loggedIn = this.$route.hash ? true : false;
     return {
       results: null,
+      me: null,
       errors: [],
       query: "",
       mustLogin: true,
@@ -93,29 +100,41 @@ export default {
       access_token: this.$route.hash.substring(1)
     };
   },
+  mounted: function() {
+    console.log("access_token", this.access_token);
+    if (this.access_token) {
+      let config = {
+        headers: {
+          Authorization: "Bearer ".concat(this.access_token)
+        }
+      };
+      let URL = `https://api.spotify.com/v1/me`;
+      let self = this;
+      axios
+        .get(URL, config)
+        .then(response => {
+          self.me = response.data;
+        })
+        .catch(error => {
+          this.errors.push(error);
+        });
+    }
+  },
   methods: {
     login: function() {
       let stateKey = "spotify_auth_state";
-
-      let userProfileSource = document.getElementById("user-profile-template")
-          .innerHTML,
-        //            userProfileTemplate = Handlebars.compile(userProfileSource),
-        userProfilePlaceholder = document.getElementById("user-profile");
-      let oauthSource = document.getElementById("oauth-template").innerHTML,
-        //            oauthTemplate = Handlebars.compile(oauthSource),
-        oauthPlaceholder = document.getElementById("oauth");
-
       let params = getHashParams();
 
-      let access_token = params.access_token,
-        state = params.state,
-        storedState = localStorage.getItem(stateKey);
+      let storedState = localStorage.getItem(stateKey);
 
-      if (access_token && (state == null || state !== storedState)) {
+      if (
+        this.access_token &&
+        (params.state == null || params.state !== storedState)
+      ) {
         alert("There was an error during the authentication");
       } else {
         localStorage.removeItem(stateKey);
-        if (access_token) {
+        if (this.access_token) {
           axios.get({
             url: "https://api.spotify.com/v1/me",
             headers: {
@@ -134,7 +153,6 @@ export default {
     },
 
     getPlaylist: function() {
-      // API call
       let config = {
         headers: {
           Authorization: "Bearer ".concat(this.access_token)
@@ -143,7 +161,7 @@ export default {
       let URL = `https://api.spotify.com/v1/search?type=playlist&q=${this.query}`;
       let self = this;
       axios
-        .get(URL,config)
+        .get(URL, config)
         .then(response => {
           self.results = response.data.playlists.items;
         })
@@ -157,5 +175,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+.keyword-search, table.music {
+  margin: auto;
+}
+table.music td {
+  text-align: left;
+}
 </style>
