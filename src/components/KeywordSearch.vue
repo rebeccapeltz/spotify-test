@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="login" v-show="mustLogin">
+    <div id="login" v-show="mustLogin && !loggedIn">
       <p>You must log in to Spotify to use this app.</p>
       <p><button id="login-button" @click="login">Log In</button></p>
       <div id="user-profile-template"></div>
@@ -15,9 +15,9 @@
         <p>I'm feeling like...<input type="text" v-model.lazy="query" placeholder="something"><button type="submit">Go</button></p>
       </form>
       <ul v-if="results && results.length > 0">
-       <li v-for="result in results">
-         <p>{{playlists.items.name}}</p>
-         <p>{{playlists.items.tracks}}</p>
+       <li v-for="(result,index) in results" :key="index">
+         <p>{{result.name}}</p>
+         <p>{{result.tracks.href}}</p>
        </li>
       </ul>
     </div>      
@@ -62,8 +62,7 @@ function authorize(stateKey) {
   if (location.host == "localhost:8080") {
     client_id = "d691b67437944ac1bb56a568badcc0e1";
     redirect_uri = "http://localhost:8080/authorize";
-  } 
-  else {
+  } else {
     client_id = "d691b67437944ac1bb56a568badcc0e1";
     redirect_uri = "https://spotify-test-84f79.firebaseapp.com/authorize";
   }
@@ -83,12 +82,15 @@ function authorize(stateKey) {
 export default {
   name: "KeywordSearch",
   data() {
+    debugger;
+    let loggedIn = this.$route.hash ? true : false;
     return {
       results: null,
       errors: [],
       query: "",
       mustLogin: true,
-      loggedIn: false
+      loggedIn: loggedIn,
+      access_token: this.$route.hash.substring(1)
     };
   },
   methods: {
@@ -133,16 +135,17 @@ export default {
 
     getPlaylist: function() {
       // API call
-
+      let config = {
+        headers: {
+          Authorization: "Bearer ".concat(this.access_token)
+        }
+      };
+      let URL = `https://api.spotify.com/v1/search?type=playlist&q=${this.query}`;
+      let self = this;
       axios
-        .get("https://api.spotify.com/v1/search", {
-          params: {
-            q: this.query,
-            type: "playlist"
-          }
-        })
+        .get(URL,config)
         .then(response => {
-          this.results = response.data;
+          self.results = response.data.playlists.items;
         })
         .catch(error => {
           this.errors.push(error);

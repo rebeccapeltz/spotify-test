@@ -22,8 +22,9 @@ export default {
         return pre;
       }, {});
     let accessCode = hash2Obj["#access_token"];
-    let searchUri = "search/" + accessCode;
-    this.$router.push(searchUri);
+    //let searchUri = "search/" + accessCode;
+    let authorizedHome = "/#" + accessCode;
+    this.$router.push(authorizedHome);
     return {
       display_name: "test authorize"
     };
