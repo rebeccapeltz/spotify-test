@@ -13,9 +13,10 @@
     <div id="loggedIn" v-show="loggedIn">
       <h3>Welcome {{me && me.display_name}}</h3>
       <p>Music for your Mood</p>
-      <p v-show="query">This is a playlist based on <strong>{{query}}</strong></p>
+      <p v-show="query && query.length > 0">This is a playlist based on <strong>{{query}}</strong></p>
       <form v-on:submit.prevent="getPlaylist">
-        <p>I'm feeling like...<input type="text" v-model.lazy="query" placeholder="something"><button type="submit">Go</button></p>
+        <p>I'm feeling like...<input type="text" v-model="query" placeholder="something">
+        <button>Go</button></p>
       </form>
       <table class="music">
         <tr v-for="(result,index) in results" :key="index">         
@@ -151,7 +152,9 @@ export default {
       }
       authorize(stateKey);
     },
-
+    fetchMusic: function(){
+      return {};
+    },
     getPlaylist: function() {
       let config = {
         headers: {
